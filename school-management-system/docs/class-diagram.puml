@@ -1,0 +1,43 @@
+@startuml
+skinparam classAttributeIconSize 0
+abstract class User
+class Student
+class Teacher
+class UserFactory <<Factory>>
+class Course
+class CourseBuilder <<Builder>>
+interface GradeStrategy
+class AverageGradeStrategy
+class WeightedGradeStrategy
+interface GradeObserver
+class GradePublisher
+class StudentNotificationObserver
+interface Permission
+class BasicPermission
+abstract class PermissionDecorator
+class TeacherPermissionDecorator
+class AdminPermissionDecorator
+class SchoolFacade <<Facade>>
+class SchoolRepository
+User <|-- Student
+User <|-- Teacher
+UserFactory ..> User
+CourseBuilder ..> Course
+GradeStrategy <|.. AverageGradeStrategy
+GradeStrategy <|.. WeightedGradeStrategy
+GradeObserver <|.. StudentNotificationObserver
+GradePublisher o-- GradeObserver
+Permission <|.. BasicPermission
+Permission <|.. PermissionDecorator
+PermissionDecorator <|-- TeacherPermissionDecorator
+PermissionDecorator <|-- AdminPermissionDecorator
+PermissionDecorator o-- Permission
+SchoolFacade --> SchoolRepository
+SchoolFacade --> UserFactory
+SchoolFacade --> CourseBuilder
+SchoolFacade --> GradePublisher
+SchoolFacade ..> GradeStrategy
+SchoolFacade ..> Permission
+SchoolRepository o-- User
+SchoolRepository o-- Course
+@enduml

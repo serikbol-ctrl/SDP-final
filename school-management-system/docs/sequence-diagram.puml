@@ -1,0 +1,12 @@
+@startuml
+actor Teacher
+participant SchoolFacade
+participant SchoolRepository
+participant GradePublisher
+participant StudentNotificationObserver
+Teacher -> SchoolFacade: assignGrade(t1,s1,c1,90)
+SchoolFacade -> SchoolRepository: validate teacher, course, enrollment
+SchoolFacade -> SchoolRepository: addGrade(s1,c1,90)
+SchoolFacade -> GradePublisher: publish(s1,c1,90)
+GradePublisher -> StudentNotificationObserver: onGradeAssigned(s1,c1,90)
+@enduml
