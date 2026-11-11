@@ -1,9 +1,15 @@
-
 package com.school;
 
+
 import com.school.facade.SchoolFacade;
-import com.school.strategy.*;
-import java.util.*;
+import com.school.strategy.AverageGradeStrategy;
+import com.school.strategy.GradeStrategy;
+import com.school.strategy.WeightedGradeStrategy;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.Scanner;
+
 
 public final class Main {
 
@@ -27,7 +33,6 @@ public final class Main {
     }
 
     private static void printMenu() {
-        System.out.println();
         System.out.println("==========================================");
         System.out.println("        SCHOOL MANAGEMENT SYSTEM");
         System.out.println("==========================================");
@@ -45,153 +50,83 @@ public final class Main {
     }
 
     public static void main(String[] args) {
-
         while (true) {
-
             printMenu();
             String choice = ask("Choice");
 
             try {
                 switch (choice) {
-
                     case "1" -> {
-                        System.out.println(
-                                SCHOOL.registerStudent(
-                                        ask("Student ID"),
-                                        ask("Name")
-                                )
-                        );
+                        System.out.println(SCHOOL.registerStudent(ask("Student ID"), ask("Name")));
                     }
-
                     case "2" -> {
-                        System.out.println(
-                                SCHOOL.registerTeacher(
-                                        ask("Teacher ID"),
-                                        ask("Name")
-                                )
-                        );
+                        System.out.println(SCHOOL.registerTeacher(ask("Teacher ID"), ask("Name")));
                     }
-
                     case "3" -> {
                         String id = ask("Course ID");
                         String title = ask("Title");
                         String teacher = ask("Teacher ID");
-
-                        System.out.println(
-                                SCHOOL.createCourse(
-                                        id,
-                                        title,
-                                        teacher,
-                                        modules(ask("Modules (comma separated)"))
-                                )
-                        );
+                        List<String> courseModules = modules(ask("Modules (comma separated)"));
+                        System.out.println(SCHOOL.createCourse(id, title, teacher, courseModules));
                     }
-
                     case "4" -> {
-                        SCHOOL.enroll(
-                                ask("Student ID"),
-                                ask("Course ID")
-                        );
-
+                        String studentId = ask("Student ID");
+                        String courseId = ask("Course ID");
+                        SCHOOL.enroll(studentId, courseId);
                         System.out.println("Enrollment successful");
                     }
-
                     case "5" -> {
-                        String teacher = ask("Teacher ID");
-                        String student = ask("Student ID");
-                        String course = ask("Course ID");
-
-                        double grade = Double.parseDouble(
-                                ask("Grade 0..100")
-                        );
-
-                        SCHOOL.assignGrade(
-                                teacher,
-                                student,
-                                course,
-                                grade
-                        );
-
-                        System.out.println(
-                                "Grade assigned; notification created"
-                        );
+                        String teacherId = ask("Teacher ID");
+                        String studentId = ask("Student ID");
+                        String courseId = ask("Course ID");
+                        double grade = Double.parseDouble(ask("Grade 0..100"));
+                        SCHOOL.assignGrade(teacherId, studentId, courseId, grade);
+                        System.out.println("Grade assigned; notification created");
                     }
-
                     case "6" -> {
-                        String student = ask("Student ID");
-                        String course = ask("Course ID");
-
-                        String algorithm = ask(
-                                "Algorithm (1 average, 2 weighted)"
-                        );
-
+                        String studentId = ask("Student ID");
+                        String courseId = ask("Course ID");
+                        String algorithm = ask("Algorithm (1 average, 2 weighted)");
                         GradeStrategy strategy;
 
-                        if (algorithm.equals("2")) {
-                            strategy = new WeightedGradeStrategy();
-                        } else if (algorithm.equals("1")) {
+                        if (algorithm.equals("1")) {
                             strategy = new AverageGradeStrategy();
+                        } else if (algorithm.equals("2")) {
+                            strategy = new WeightedGradeStrategy();
                         } else {
                             System.out.println("Invalid algorithm");
                             break;
                         }
 
-                        System.out.printf(
-                                Locale.US,
-                                "%s: %.2f%n",
-                                strategy.name(),
-                                SCHOOL.finalGrade(
-                                        student,
-                                        course,
-                                        strategy
-                                )
-                        );
+                        double result = SCHOOL.finalGrade(studentId, courseId, strategy);
+                        System.out.printf(Locale.US, "%s: %.2f%n", strategy.name(), result);
                     }
-
                     case "7" -> {
                         String studentId = ask("Student ID");
-
-                        var notifications =
-                                SCHOOL.notifications(studentId);
-
-                        if (notifications.isEmpty()) {
+                        List<String> messages = SCHOOL.notifications(studentId);
+                        if (messages.isEmpty()) {
                             System.out.println("No notifications");
                         } else {
-                            notifications.forEach(System.out::println);
+                            messages.forEach(System.out::println);
                         }
                     }
-
                     case "8" -> {
-                        String id = ask("User ID");
-
-                        SCHOOL.grantAdmin(id);
-
-                        System.out.println(
-                                "Permissions: " +
-                                SCHOOL.permissionFor(id).actions()
-                        );
+                        String userId = ask("User ID");
+                        SCHOOL.grantAdmin(userId);
+                        System.out.println("Permissions: " + SCHOOL.permissionFor(userId).actions());
                     }
-
                     case "9" -> {
                         System.out.println("Users:");
-
                         SCHOOL.users().forEach(System.out::println);
-
                         System.out.println("Courses:");
-
                         SCHOOL.courses().forEach(System.out::println);
                     }
-
                     case "0" -> {
                         System.out.println("Goodbye");
                         return;
                     }
-
-                    default -> {
-                        System.out.println("Unknown choice");
-                    }
+                    default -> System.out.println("Unknown choice");
                 }
-
             } catch (IllegalArgumentException ex) {
                 System.out.println("Error: " + ex.getMessage());
             }
